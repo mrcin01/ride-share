@@ -11,7 +11,6 @@ create table if not exists "User"
 	"isAdmin" boolean
 );
 
-alter table "User" owner to matthew_bouch;
 
 create unique index if not exists user_email_uindex
 	on "User" (email);
@@ -30,7 +29,6 @@ create table if not exists "Vehicle Type"
 	type varchar not null
 );
 
-alter table "Vehicle Type" owner to matthew_bouch;
 
 create unique index if not exists "vehicle type_id_uindex"
 	on "Vehicle Type" (id);
@@ -43,7 +41,6 @@ create table if not exists "State"
 	name varchar not null
 );
 
-alter table "State" owner to matthew_bouch;
 
 create table if not exists "Driver"
 (
@@ -59,7 +56,6 @@ create table if not exists "Driver"
 			references "State"
 );
 
-alter table "Driver" owner to matthew_bouch;
 
 create unique index if not exists driver_id_uindex
 	on "Driver" (id);
@@ -89,7 +85,6 @@ create table if not exists "Vehicle"
 	"licensePlate" varchar not null
 );
 
-alter table "Vehicle" owner to matthew_bouch;
 
 create table if not exists "Authorization"
 (
@@ -101,7 +96,6 @@ create table if not exists "Authorization"
 			references "Vehicle"
 );
 
-alter table "Authorization" owner to matthew_bouch;
 
 create unique index if not exists vehicle_id_uindex
 	on "Vehicle" (id);
@@ -120,7 +114,6 @@ create table if not exists "Location"
 	"zipCode" varchar not null
 );
 
-alter table "Location" owner to matthew_bouch;
 
 create table if not exists "Ride"
 (
@@ -143,7 +136,6 @@ create table if not exists "Ride"
 			references "Location"
 );
 
-alter table "Ride" owner to matthew_bouch;
 
 create table if not exists "Passenger"
 (
@@ -155,7 +147,6 @@ create table if not exists "Passenger"
 			references "Ride"
 );
 
-alter table "Passenger" owner to matthew_bouch;
 
 create table if not exists "Drivers"
 (
@@ -167,7 +158,6 @@ create table if not exists "Drivers"
 			references "Ride"
 );
 
-alter table "Drivers" owner to matthew_bouch;
 
 create unique index if not exists ride_id_uindex
 	on "Ride" (id);
