@@ -18,3 +18,6 @@ class Vehicle_Type extends Model {
             }
         };
     }
+}
+
+module.exports = Vehicle_Type;

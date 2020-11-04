@@ -1,4 +1,5 @@
-const { knex, Model } = require("../db.js");
-const Passenger = require('../models/Passenger.js');
+const Passenger = require("../models/Passenger.js");
 
-knex.select(Passenger).table(Passenger).then(result => console.log(result)).catch(err => console.log(err));
+Passenger.query()
+  .then((passengers) => console.log("Passengers", passengers))
+  .catch((err) => console.log("Hello: " + err.message));

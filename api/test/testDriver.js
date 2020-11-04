@@ -1,4 +1,5 @@
-const { knex, Model } = require("../db.js");
-const Driver = require('../models/Driver.js');
+const Driver = require("../models/Driver.js");
 
-knex.select(Driver).table(Driver).then(result => console.log(result)).catch(err => console.log(err));
+Driver.query()
+  .then((drivers) => console.log("Drivers", drivers))
+  .catch((err) => console.log("Hello: " + err.message));

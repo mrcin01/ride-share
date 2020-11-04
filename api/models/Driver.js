@@ -1,4 +1,4 @@
-const { knex, Model } = require("../db");
+const { knex, Model } = require("../db.js");
 
 class Driver extends Model {
     static get tableName() {
@@ -30,3 +30,5 @@ class Driver extends Model {
         };
     }
 }
+
+module.exports = Driver;

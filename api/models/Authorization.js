@@ -1,4 +1,4 @@
-const { knex, Model } = require("../db");
+const { knex, Model } = require("../db.js");
 
 class Authorization extends Model {
     static get tableName() {
@@ -28,3 +28,5 @@ class Authorization extends Model {
         };
     }
 }
+
+module.exports = Authorization;

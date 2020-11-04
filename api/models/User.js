@@ -15,7 +15,7 @@ class User extends Model {
         modelClass: Driver,
         join: {
           from: "User.id",
-          to: "Driver.user_id",
+          to: "Driver.userId",
         },
       },
       Passenger: {
