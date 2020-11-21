@@ -95,7 +95,7 @@ const knex = require("knex")({
           description: "Retrieve all accounts",
         },
         handler: (request, h) => {
-          return Account.query();
+          return User.query();
         },
       },
   
