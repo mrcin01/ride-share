@@ -3,6 +3,7 @@ const { knex, Model } = require("./db.js");
 
 // Models
 const User = require("./models/User");
+const Ride = require("./models/Ride");
 
 // Hapi
 const Joi = require("@hapi/joi"); // Input validation
@@ -63,6 +64,7 @@ async function init() {
           password: request.payload.password,
           phone: request.payload.phone,
           isAdmin: false,
+          active: true,
         });
 
         if (newAccount) {
@@ -91,31 +93,27 @@ async function init() {
     },
 
     {
-      method: "PATCH",
-      path: "/deactivate/{id}",
+      method: "DELETE",
+      path: "/accounts/{id}",
       config: {
-        description: "Deactivate an account",
-        validate: {
-          payload: Joi.object({
-            active: Joi.required(),
-          }),
-        },
+        description: "Delete an account",
       },
-      handler: async (request, h) => {
-        const user = await User.query()
-          .where({id: request.params.id})
-          .update(request.payload.active);
-        if (user) {
-          return {
-            ok: true,
-            msge: `Deleted account with ID '${request.params.id}'`,
-          };
-        } else {
-          return {
-            ok: false,
-            msge: `Couldn't delete account with ID '${request.params.id}'`,
-          };
-        }
+      handler: (request, h) => {
+        return User.query()
+          .deleteById(request.params.id)
+          .then((rowsDeleted) => {
+            if (rowsDeleted === 1) {
+              return {
+                ok: true,
+                msge: `Deleted account with ID '${request.params.id}'`,
+              };
+            } else {
+              return {
+                ok: false,
+                msge: `Couldn't delete account with ID '${request.params.id}'`,
+              };
+            }
+          });
       },
     },
 
@@ -156,6 +154,17 @@ async function init() {
             msge: "Invalid email or password",
           };
         }
+      },
+    },
+
+    {
+      method: "GET",
+      path: "/rides",
+      config: {
+        description: "Retrieve all rides",
+      },
+      handler: (request, h) => {
+        return Ride.query();
       },
     },
   ]);

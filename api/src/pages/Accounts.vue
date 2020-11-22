@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <div>
-      <h4 class="display-1">Accounts</h4>
+      <h4 class="display-1">Users</h4>
 
       <v-data-table
         class="elevation-1"
@@ -61,8 +61,8 @@ export default {
       this.accounts = response.data.map(account => ({
         id: account.id,
         email: account.email,
-        firstName: account.first_name,
-        lastName: account.last_name
+        firstName: account.firstName,
+        lastName: account.lastName
       }));
     });
   },
@@ -90,7 +90,7 @@ export default {
 
     // Delete an account.
     deleteAccount(item) {
-      this.$axios.patch(`/deactivate/${item.id}`).then(response => {
+      this.$axios.delete(`/accounts/${item.id}`).then(response => {
         if (response.data.ok) {
           // The delete operation worked on the server; delete the local account
           // by filtering the deleted account from the list of accounts.
