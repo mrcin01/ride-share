@@ -90,7 +90,7 @@ export default {
 
     // Delete an account.
     deleteAccount(item) {
-      this.$axios.delete(`/accounts/${item.id}`).then(response => {
+      this.$axios.patch(`/deactivate/${item.id}`).then(response => {
         if (response.data.ok) {
           // The delete operation worked on the server; delete the local account
           // by filtering the deleted account from the list of accounts.

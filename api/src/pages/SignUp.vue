@@ -17,6 +17,11 @@
           label="Last name"
         ></v-text-field>
         <v-text-field
+          v-model="newMember.phone"
+          v-bind:rules="rules.required"
+          label="Phone number"
+        ></v-text-field>
+        <v-text-field
           v-model="newMember.email"
           v-bind:rules="rules.email"
           error-count="10"
@@ -78,6 +83,7 @@ export default {
       newMember: {
         firstName: "",
         lastName: "",
+        phone: "",
         email: "",
         password: "",
       },
@@ -121,6 +127,7 @@ export default {
         .post("/accounts", {
           firstName: this.newMember.firstName,
           lastName: this.newMember.lastName,
+          phone: this.newMember.phone,
           email: this.newMember.email,
           password: this.newMember.password,
         })
