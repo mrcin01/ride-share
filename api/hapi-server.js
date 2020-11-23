@@ -165,7 +165,7 @@ async function init() {
         description: "Retrieve all rides",
       },
       handler: (request, h) => {
-        return Ride.query().withGraphFetched('vehicle').withGraphFetched('fromLocation').withGraphFetched('toLocation');
+        return Ride.query().withGraphFetched('vehicle').withGraphFetched('fromLocation').withGraphFetched('toLocation').withGraphFetched('passenger');
       },
     },
   ]);
