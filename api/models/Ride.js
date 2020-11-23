@@ -2,7 +2,7 @@ const { knex, Model } = require("../db.js");
 
 class Ride extends Model {
     static get tableName() {
-        return "Ride";
+        return 'Ride';
     }
 
     static get relationMappings() {
@@ -12,7 +12,7 @@ class Ride extends Model {
       const Passenger = require('./Passenger.js');
         return {
             driver: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: Drivers,
                 join: {
                     from: "Ride.id",
@@ -20,7 +20,7 @@ class Ride extends Model {
                 }
             },
             passenger: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: Passenger,
                 join: {
                     from: "Ride.id",
@@ -28,27 +28,27 @@ class Ride extends Model {
                 }
             },
             vehicle: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: Vehicle,
                 join: {
-                    from: "Vehicle.id",
-                    to: "Ride.vehicleId"
+                    from: "Ride.vehicleId", 
+                    to: "Vehicle.id"
                 }
             },
             fromLocation: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: Location,
                 join: {
-                    from: "Location.id",
-                    to: "Ride.fromLocationId"
+                    from: "Ride.fromLocationId",
+                    to: "Location.id"
                 }
             },
             toLocation: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: Location,
                 join: {
-                    from: "Location.id",
-                    to: "Ride.toLocationId"
+                    from: "Ride.toLocationId",
+                    to: "Location.id"
                 }
             }
         };

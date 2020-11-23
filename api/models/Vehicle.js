@@ -2,7 +2,7 @@ const { knex, Model } = require("../db.js");
 
 class Vehicle extends Model {
     static get tableName() {
-        return "Vehicle";
+        return 'Vehicle';
     }
 
     static get relationMappings() {

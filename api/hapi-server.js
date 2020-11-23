@@ -4,6 +4,7 @@ const { knex, Model } = require("./db.js");
 // Models
 const User = require("./models/User");
 const Ride = require("./models/Ride");
+const Vehicle = require("./models/Vehicle.js");
 
 // Hapi
 const Joi = require("@hapi/joi"); // Input validation
@@ -164,7 +165,7 @@ async function init() {
         description: "Retrieve all rides",
       },
       handler: (request, h) => {
-        return Ride.query();
+        return Ride.query().withGraphFetched('vehicle').withGraphFetched('fromLocation').withGraphFetched('toLocation');
       },
     },
   ]);

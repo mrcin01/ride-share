@@ -15,6 +15,10 @@
             <td>{{ item.distance }}</td>
             <td>{{ item.fuelPrice }}</td>
             <td>{{ item.fee }}</td>
+            <td>{{ item.vehicle }}</td>
+            <td>{{ item.capacity }}</td>
+            <td>{{ item.fromLocation }}</td>
+            <td>{{ item.toLocation }}</td>
           </tr>
         </template>
       </v-data-table>
@@ -41,6 +45,10 @@ export default {
         { text: "Distance", value: "distance" },
         { text: "Fuel Price", value: "fuelPrice" },
         { text: "Fee", value: "fee" },
+        { text: "Vehicle", value: "vehicle" },
+        { text: "Capacity", value: "capacity" },
+        { text: "From Location", value: "fromLocation" },
+        { text: "To Location", value: "toLocation" },
       ],
       rides: [],
 
@@ -60,6 +68,10 @@ export default {
         distance: ride.distance,
         fuelPrice: ride.fuelPrice,
         fee: ride.fee,
+        vehicle: ride.vehicle[0].make + " " + ride.vehicle[0].model + " " + ride.vehicle[0].color,
+        capacity: ride.vehicle[0].capacity,
+        fromLocation: ride.fromLocation[0].name,
+        toLocation: ride.toLocation[0].name,
       }));
     });
   },
