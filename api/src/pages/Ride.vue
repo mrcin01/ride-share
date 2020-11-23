@@ -19,6 +19,7 @@
             <td>{{ item.capacity }}</td>
             <td>{{ item.fromLocation }}</td>
             <td>{{ item.toLocation }}</td>
+            <td><v-btn color="blue" text @click="createPassenger">Join</v-btn></td>
           </tr>
         </template>
       </v-data-table>
@@ -49,6 +50,7 @@ export default {
         { text: "Capacity", value: "capacity" },
         { text: "From Location", value: "fromLocation" },
         { text: "To Location", value: "toLocation" },
+        { text: "Join Ride", value: "passenger" },
       ],
       rides: [],
 
@@ -69,7 +71,7 @@ export default {
         fuelPrice: ride.fuelPrice,
         fee: ride.fee,
         vehicle: ride.vehicle[0].make + " " + ride.vehicle[0].model + " " + ride.vehicle[0].color,
-        capacity: ride.vehicle[0].capacity,
+        capacity: `${ride.passenger.length}/${ride.vehicle[0].capacity}`,
         fromLocation: ride.fromLocation[0].name,
         toLocation: ride.toLocation[0].name,
       }));
@@ -86,6 +88,11 @@ export default {
     // Calculate the CSS class for an item
     itemClass(item) {
       return item;
+    },
+
+    createPassenger(item) {
+        console.log("Pasenger!!!");
+        return item;
     },
   }
 };
