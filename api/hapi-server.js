@@ -9,6 +9,7 @@ const Vehicle = require("./models/Vehicle.js");
 // Hapi
 const Joi = require("@hapi/joi"); // Input validation
 const Hapi = require("@hapi/hapi"); // Server
+const Passenger = require("./models/Passenger.js");
 
 const server = Hapi.server({
   host: "localhost",
@@ -168,6 +169,51 @@ async function init() {
         return Ride.query().withGraphFetched('vehicle').withGraphFetched('fromLocation').withGraphFetched('toLocation').withGraphFetched('passenger');
       },
     },
+
+    {
+      method: "POST",
+      path: "/passenger",
+      config: {
+        description: "Joining a ride by creating a passenger",
+        validate: {
+          payload: Joi.object({
+            passengerId: Joi.required(),
+            rideId: Joi.required(),
+          }),
+        },
+      },
+      handler: async (request, h) => {
+        const existingPassenger = await Passenger.query()
+          .where("passengerId", request.payload.passengerId)
+          .andWhere("rideId", request.payload.rideId)
+          .first();
+        if (existingPassenger) {
+          console.log(`Passenger already signed up for this ride '${request.payload.passengerId}' is already in use`);
+          return {
+            ok: false,
+            msge: `Passenger already signed up for a ride '${request.payload.passengerId}' is already in use`,
+          };
+        }
+
+        const newPassenger = await Passenger.query().insert({
+          passengerId: request.payload.passengerId,
+          rideId: request.payload.rideId,
+        });
+
+        if (newPassenger) {
+          return {
+            ok: true,
+            msge: `Created passenger '${request.payload.passengerId}'`,
+          };
+        } else {
+          return {
+            ok: false,
+            msge: `Couldn't create passenger with id '${request.payload.passengerId}'`,
+          };
+        }
+      },
+    },
+
   ]);
 
   // Start the server.

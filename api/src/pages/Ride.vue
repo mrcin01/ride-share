@@ -19,7 +19,7 @@
             <td>{{ item.capacity }}</td>
             <td>{{ item.fromLocation }}</td>
             <td>{{ item.toLocation }}</td>
-            <td><v-btn color="blue" text @click="createPassenger">Join</v-btn></td>
+            <td><v-btn color="blue" text @click="createPassenger(item)">Join</v-btn></td>
           </tr>
         </template>
       </v-data-table>
@@ -91,8 +91,27 @@ export default {
     },
 
     createPassenger(item) {
-        console.log("Pasenger!!!");
-        return item;
+      const currentAccount = this.$store.state.currentAccount;
+      console.log(currentAccount.id);
+      console.log(item.id);
+      let capacity = item.capacity.split("/");
+      let currPassengers = Math.floor(capacity[0]);
+      let maxPassengers = Math.floor(capacity[1]);
+      if (currPassengers < maxPassengers){
+        this.$axios
+          .post("/passenger", {
+            passengerId: currentAccount.id,
+            rideId: item.id,
+          })
+          .then(() => {
+            console.log("Success!");
+          })
+          .catch((err) => console.log(err));
+      }
+      else {
+        console.log("Ride is full");
+        return;
+      }
     },
   }
 };

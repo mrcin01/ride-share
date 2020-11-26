@@ -10,7 +10,7 @@ class Passenger extends Model {
       const Ride = require('./Ride.js');
         return {
             user: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: User,
                 join: {
                     from: "User.id",
@@ -18,7 +18,7 @@ class Passenger extends Model {
                 }
             },
             ride: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: Ride,
                 join: {
                     from: "Ride.id",
