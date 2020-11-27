@@ -19,7 +19,11 @@
             <td>{{ item.capacity }}</td>
             <td>{{ item.fromLocation }}</td>
             <td>{{ item.toLocation }}</td>
-            <td><v-btn color="blue" text @click="createPassenger(item)">Join</v-btn></td>
+            <td>
+              <v-btn color="blue" text @click="createPassenger(item)"
+                >Join</v-btn
+              >
+            </td>
           </tr>
         </template>
       </v-data-table>
@@ -56,21 +60,27 @@ export default {
 
       snackbar: {
         show: false,
-        text: ""
-      }
+        text: "",
+      },
     };
   },
 
   mounted: function() {
-    this.$axios.get("/rides").then(response => {
-      this.rides = response.data.map(ride => ({
+    this.$axios.get("/rides").then((response) => {
+      console.log(response.data);
+      this.rides = response.data.map((ride) => ({
         id: ride.id,
         date: ride.date,
         time: ride.time,
         distance: ride.distance,
         fuelPrice: ride.fuelPrice,
         fee: ride.fee,
-        vehicle: ride.vehicle[0].make + " " + ride.vehicle[0].model + " " + ride.vehicle[0].color,
+        vehicle:
+          ride.vehicle[0].make +
+          " " +
+          ride.vehicle[0].model +
+          " " +
+          ride.vehicle[0].color,
         capacity: `${ride.passenger.length}/${ride.vehicle[0].capacity}`,
         fromLocation: ride.fromLocation[0].name,
         toLocation: ride.toLocation[0].name,
@@ -90,14 +100,23 @@ export default {
       return item;
     },
 
+    // I would like this function to give me all the rides so I can use this data in createPassenger to check for if a passenger is already on a ride.
+    getRides() {
+      const currentRides = this.$axios.get("/rides");
+      return currentRides;
+    },
+
     createPassenger(item) {
+      const currentRides = this.getRides();
+      console.log("Current Rides");
+      console.log(currentRides);
       const currentAccount = this.$store.state.currentAccount;
       console.log(currentAccount.id);
       console.log(item.id);
       let capacity = item.capacity.split("/");
       let currPassengers = Math.floor(capacity[0]);
       let maxPassengers = Math.floor(capacity[1]);
-      if (currPassengers < maxPassengers){
+      if (currPassengers < maxPassengers) {
         this.$axios
           .post("/passenger", {
             passengerId: currentAccount.id,
@@ -105,14 +124,14 @@ export default {
           })
           .then(() => {
             console.log("Success!");
+            item.capacity = currPassengers + 1 + "/" + maxPassengers;
           })
           .catch((err) => console.log(err));
-      }
-      else {
+      } else {
         console.log("Ride is full");
         return;
       }
     },
-  }
+  },
 };
 </script>
