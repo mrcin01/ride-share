@@ -20,9 +20,10 @@
             <td>{{ item.fromLocation }}</td>
             <td>{{ item.toLocation }}</td>
             <td>
-              <v-btn color="blue" text @click="createPassenger(item)"
-                >Join</v-btn
-              >
+              <span v-if="isCurrentUserRiding(item)">ON RIDE</span>
+              <v-btn v-else color="blue" text @click="createPassenger(item)">
+                Join
+              </v-btn>
             </td>
           </tr>
         </template>
@@ -84,6 +85,7 @@ export default {
         capacity: `${ride.passenger.length}/${ride.vehicle[0].capacity}`,
         fromLocation: ride.fromLocation[0].name,
         toLocation: ride.toLocation[0].name,
+        passengers: ride.passenger,
       }));
     });
   },
@@ -104,6 +106,12 @@ export default {
     getRides() {
       const currentRides = this.$axios.get("/rides");
       return currentRides;
+    },
+
+    // Is the currently logged-in user a passenger on `ride`?
+    isCurrentUserRiding(ride) {
+      const currentId = this.$store.state.currentAccount.id;
+      return ride.passengers.find((passenger) => passenger.id === currentId);
     },
 
     createPassenger(item) {

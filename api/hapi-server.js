@@ -1,5 +1,4 @@
-// Knex
-const { knex, Model } = require("./db.js");
+require("./db.js");
 
 // Models
 const User = require("./models/User");
@@ -43,7 +42,9 @@ async function init() {
             firstName: Joi.string().required(),
             lastName: Joi.string().required(),
             phone: Joi.required(),
-            email: Joi.string().email().required(),
+            email: Joi.string()
+              .email()
+              .required(),
             password: Joi.string().required(),
           }),
         },
@@ -126,8 +127,12 @@ async function init() {
         description: "Log in",
         validate: {
           payload: Joi.object({
-            email: Joi.string().email().required(),
-            password: Joi.string().min(8).required(),
+            email: Joi.string()
+              .email()
+              .required(),
+            password: Joi.string()
+              .min(8)
+              .required(),
           }),
         },
       },
@@ -136,10 +141,7 @@ async function init() {
         const user = await User.query()
           .where("email", request.payload.email)
           .first();
-        if (
-          user &&
-          (await user.verifyPassword(request.payload.password))
-        ) {
+        if (user && (await user.verifyPassword(request.payload.password))) {
           return {
             ok: true,
             msge: `Logged in successfully as '${request.payload.email}'`,
@@ -166,7 +168,11 @@ async function init() {
         description: "Retrieve all rides",
       },
       handler: (request, h) => {
-        return Ride.query().withGraphFetched('vehicle').withGraphFetched('fromLocation').withGraphFetched('toLocation').withGraphFetched('passenger');
+        return Ride.query()
+          .withGraphFetched("vehicle")
+          .withGraphFetched("fromLocation")
+          .withGraphFetched("toLocation")
+          .withGraphFetched("passenger");
       },
     },
 
@@ -188,7 +194,9 @@ async function init() {
           .andWhere("rideId", request.payload.rideId)
           .first();
         if (existingPassenger) {
-          console.log(`Passenger already signed up for this ride '${request.payload.passengerId}' is already in use`);
+          console.log(
+            `Passenger already signed up for this ride '${request.payload.passengerId}' is already in use`
+          );
           return {
             ok: false,
             msge: `Passenger already signed up for a ride '${request.payload.passengerId}' is already in use`,
@@ -213,7 +221,6 @@ async function init() {
         }
       },
     },
-
   ]);
 
   // Start the server.
@@ -222,5 +229,3 @@ async function init() {
 
 // Go!
 init();
-
-  
