@@ -4,11 +4,13 @@ require("./db.js");
 const User = require("./models/User");
 const Ride = require("./models/Ride");
 const Vehicle = require("./models/Vehicle.js");
+const Driver = require("./models/Driver.js");
+const Passenger = require("./models/Passenger.js");
 
 // Hapi
 const Joi = require("@hapi/joi"); // Input validation
 const Hapi = require("@hapi/hapi"); // Server
-const Passenger = require("./models/Passenger.js");
+
 
 const server = Hapi.server({
   host: "localhost",
@@ -217,6 +219,56 @@ async function init() {
           return {
             ok: false,
             msge: `Couldn't create passenger with id '${request.payload.passengerId}'`,
+          };
+        }
+      },
+    },
+
+    {
+      method: "POST",
+      path: "/driver",
+      config: {
+        description: "Becoming a Driver",
+        validate: {
+          payload: Joi.object({
+            userId: Joi.required(),
+            licenseNumber: Joi.required(),
+            licenseState: Joi.string().required(),
+          }),
+        },
+      },
+      handler: async (request, h) => {
+        const existingDriver = await Driver.query()
+          .where("userId", request.payload.userId)
+          .first();
+        if (existingDriver) {
+          console.log(
+            `User: '${request.payload.userId}' is already a driver`
+          );
+          return {
+            ok: false,
+            msge: `User: '${request.payload.userId}' is already a driver`,
+          };
+        }
+
+        const newDriver = await Driver.query().insert({
+          userId: request.payload.userId,
+          licenseNumber: request.payload.licenseNumber,
+          licenseState: request.payload.licenseState,
+        });
+
+        if (newDriver) {
+          const userName = await User.query()
+            .where("id", request.payload.userId)
+            .first();
+          return {
+            ok: true,
+            msge: `Created driver for user: ${userName.firstName}`,
+          };
+        } else {
+          return {
+            ok: false,
+            msge: `Couldn't create Driver from user id '${request.payload.userId}'`,
           };
         }
       },

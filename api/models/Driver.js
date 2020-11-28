@@ -12,7 +12,7 @@ class Driver extends Model {
       const Drivers = require('./Drivers.js');
         return {
             user: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: User,
                 join: {
                     from: "User.id",
@@ -20,7 +20,7 @@ class Driver extends Model {
                 }
             },
             state: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: State,
                 join: {
                     from: "State.abbreviation",
