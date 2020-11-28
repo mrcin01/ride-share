@@ -40,6 +40,7 @@
 </template>
 
 <script>
+
 export default {
   name: "Rides",
 
@@ -68,7 +69,6 @@ export default {
 
   mounted: function() {
     this.$axios.get("/rides").then((response) => {
-      console.log(response.data);
       this.rides = response.data.map((ride) => ({
         id: ride.id,
         date: ride.date,
@@ -102,22 +102,13 @@ export default {
       return item;
     },
 
-    // I would like this function to give me all the rides so I can use this data in createPassenger to check for if a passenger is already on a ride.
-    getRides() {
-      const currentRides = this.$axios.get("/rides");
-      return currentRides;
-    },
-
     // Is the currently logged-in user a passenger on `ride`?
     isCurrentUserRiding(ride) {
       const currentId = this.$store.state.currentAccount.id;
-      return ride.passengers.find((passenger) => passenger.id === currentId);
+      return ride.passengers.find((passenger) => passenger.passengerId === currentId);
     },
 
     createPassenger(item) {
-      const currentRides = this.getRides();
-      console.log("Current Rides");
-      console.log(currentRides);
       const currentAccount = this.$store.state.currentAccount;
       console.log(currentAccount.id);
       console.log(item.id);
@@ -133,6 +124,7 @@ export default {
           .then(() => {
             console.log("Success!");
             item.capacity = currPassengers + 1 + "/" + maxPassengers;
+            // Need something here to make the code reload the table
           })
           .catch((err) => console.log(err));
       } else {
