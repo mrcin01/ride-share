@@ -20,7 +20,7 @@
             <td>{{ item.fromLocation }}</td>
             <td>{{ item.toLocation }}</td>
             <td>
-              <span v-if="isCurrentUserRiding(item)">ON RIDE</span>
+              <span v-if="item.currentUserIsPassenger">ON RIDE</span>
               <v-btn v-else color="blue" text @click="createPassenger(item)">
                 Join
               </v-btn>
@@ -40,7 +40,6 @@
 </template>
 
 <script>
-
 export default {
   name: "Rides",
 
@@ -69,24 +68,29 @@ export default {
 
   mounted: function() {
     this.$axios.get("/rides").then((response) => {
-      this.rides = response.data.map((ride) => ({
-        id: ride.id,
-        date: ride.date,
-        time: ride.time,
-        distance: ride.distance,
-        fuelPrice: ride.fuelPrice,
-        fee: ride.fee,
-        vehicle:
-          ride.vehicle[0].make +
-          " " +
-          ride.vehicle[0].model +
-          " " +
-          ride.vehicle[0].color,
-        capacity: `${ride.passenger.length}/${ride.vehicle[0].capacity}`,
-        fromLocation: ride.fromLocation[0].name,
-        toLocation: ride.toLocation[0].name,
-        passengers: ride.passenger,
-      }));
+      this.rides = response.data.map((ride) => {
+        const rtn = {
+          id: ride.id,
+          date: ride.date,
+          time: ride.time,
+          distance: ride.distance,
+          fuelPrice: ride.fuelPrice,
+          fee: ride.fee,
+          vehicle:
+            ride.vehicle[0].make +
+            " " +
+            ride.vehicle[0].model +
+            " " +
+            ride.vehicle[0].color,
+          capacity: `${ride.passenger.length}/${ride.vehicle[0].capacity}`,
+          fromLocation: ride.fromLocation[0].name,
+          toLocation: ride.toLocation[0].name,
+          passengers: ride.passenger,
+        };
+
+        rtn.currentUserIsPassenger = this.isCurrentUserRiding(rtn);
+        return rtn;
+      });
     });
   },
 
@@ -104,8 +108,14 @@ export default {
 
     // Is the currently logged-in user a passenger on `ride`?
     isCurrentUserRiding(ride) {
-      const currentId = this.$store.state.currentAccount.id;
-      return ride.passengers.find((passenger) => passenger.passengerId === currentId);
+      if (this.$store.state.currentAccount) {
+        const currentId = this.$store.state.currentAccount.id;
+        return ride.passengers.find(
+          (passenger) => passenger.passengerId === currentId
+        );
+      } else {
+        return false;
+      }
     },
 
     createPassenger(item) {
@@ -124,7 +134,8 @@ export default {
           .then(() => {
             console.log("Success!");
             item.capacity = currPassengers + 1 + "/" + maxPassengers;
-            // Need something here to make the code reload the table
+            // Update the users's status on this ride, which should reactively update the UI.
+            this.$set(item, "currentUserIsPassenger", true);
           })
           .catch((err) => console.log(err));
       } else {
