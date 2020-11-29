@@ -116,7 +116,7 @@ export default {
         return (
           ride.passengers.find(
             (passenger) => passenger.passengerId === currentId
-          ) || ride.drivers.find((driver) => driver.id === currentId)
+          ) || ride.drivers.find((driver) => driver.userId === currentId)
         );
       } else {
         return false;
