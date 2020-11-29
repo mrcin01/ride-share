@@ -62,7 +62,7 @@ export default {
       this.$axios
         .post("/driver", {
           userId: currentId,
-          licenseNumber: Math.floor(this.licenseNumber),
+          licenseNumber: this.licenseNumber,
           licenseState: this.licenseState,
         })
         .then((result) => {

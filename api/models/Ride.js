@@ -13,14 +13,14 @@ class Ride extends Model {
     const Driver = require("./Driver.js");
 
     return {
-      drivers: {
-        relation: Model.HasManyRelation,
-        modelClass: Drivers,
-        join: {
-          from: "Ride.id",
-          to: "Drivers.rideId",
-        },
-      },
+      // drivers: {
+      //   relation: Model.HasManyRelation,
+      //   modelClass: Drivers,
+      //   join: {
+      //     from: "Ride.id",
+      //     to: "Drivers.rideId",
+      //   },
+      // },
       passenger: {
         relation: Model.HasManyRelation,
         modelClass: Passenger,
@@ -53,15 +53,14 @@ class Ride extends Model {
           to: "Location.id",
         },
       },
-      driver: {
-        relation: Model.HasManyRelation,
+      drivers: {
+        relation: Model.ManyToManyRelation,
         modelClass: Driver,
         join: {
           from: "Ride.id",
           through: {
-            // drivers is the join table.
-            from: "drivers.rideId",
-            to: "drivers.driverId",
+            from: "Drivers.rideId",
+            to: "Drivers.driverId",
           },
           to: "Driver.id",
         },

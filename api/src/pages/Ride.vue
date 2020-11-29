@@ -82,13 +82,13 @@ export default {
             ride.vehicle[0].model +
             " " +
             ride.vehicle[0].color,
-          capacity: `${ride.passenger.length + ride.driver.length}/${
+          capacity: `${ride.passenger.length + ride.drivers.length}/${
             ride.vehicle[0].capacity
           }`,
           fromLocation: ride.fromLocation[0].name,
           toLocation: ride.toLocation[0].name,
           passengers: ride.passenger,
-          driver: ride.driver,
+          drivers: ride.drivers,
         };
 
         rtn.currentUserIsPassenger = this.isCurrentUserRiding(rtn);
@@ -116,7 +116,7 @@ export default {
         return (
           ride.passengers.find(
             (passenger) => passenger.passengerId === currentId
-          ) || ride.driver.find((driver) => driver.id === currentId)
+          ) || ride.drivers.find((driver) => driver.id === currentId)
         );
       } else {
         return false;
