@@ -60,11 +60,11 @@ class Ride extends Model {
           from: "Ride.id",
           through: {
             // drivers is the join table.
-            from: 'drivers.rideId',
-            to: 'drivers.driverId'
+            from: "drivers.rideId",
+            to: "drivers.driverId",
           },
           to: "Driver.id",
-        }
+        },
       },
     };
   }

@@ -82,7 +82,9 @@ export default {
             ride.vehicle[0].model +
             " " +
             ride.vehicle[0].color,
-          capacity: `${ride.passenger.length + ride.driver.length}/${ride.vehicle[0].capacity}`,
+          capacity: `${ride.passenger.length + ride.driver.length}/${
+            ride.vehicle[0].capacity
+          }`,
           fromLocation: ride.fromLocation[0].name,
           toLocation: ride.toLocation[0].name,
           passengers: ride.passenger,
@@ -111,11 +113,11 @@ export default {
     isCurrentUserRiding(ride) {
       if (this.$store.state.currentAccount) {
         const currentId = this.$store.state.currentAccount.id;
-        return (ride.passengers.find(
-          (passenger) => passenger.passengerId === currentId
-        ) || ride.driver.find(
-          (driver) => driver.id === currentId
-          ));
+        return (
+          ride.passengers.find(
+            (passenger) => passenger.passengerId === currentId
+          ) || ride.driver.find((driver) => driver.id === currentId)
+        );
       } else {
         return false;
       }
@@ -133,13 +135,12 @@ export default {
             rideId: item.id,
           })
           .then((result) => {
-            if(result.data.ok == true){
+            if (result.data.ok == true) {
               console.log("Success!");
               item.capacity = currPassengers + 1 + "/" + maxPassengers;
               // Update the users's status on this ride, which should reactively update the UI.
               this.$set(item, "currentUserIsPassenger", true);
-            }
-            else {
+            } else {
               console.log("Failed to create passenger");
             }
           })
