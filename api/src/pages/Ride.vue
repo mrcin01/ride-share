@@ -82,10 +82,11 @@ export default {
             ride.vehicle[0].model +
             " " +
             ride.vehicle[0].color,
-          capacity: `${ride.passenger.length}/${ride.vehicle[0].capacity}`,
+          capacity: `${ride.passenger.length + ride.driver.length}/${ride.vehicle[0].capacity}`,
           fromLocation: ride.fromLocation[0].name,
           toLocation: ride.toLocation[0].name,
           passengers: ride.passenger,
+          driver: ride.driver,
         };
 
         rtn.currentUserIsPassenger = this.isCurrentUserRiding(rtn);
@@ -110,9 +111,11 @@ export default {
     isCurrentUserRiding(ride) {
       if (this.$store.state.currentAccount) {
         const currentId = this.$store.state.currentAccount.id;
-        return ride.passengers.find(
+        return (ride.passengers.find(
           (passenger) => passenger.passengerId === currentId
-        );
+        ) || ride.driver.find(
+          (driver) => driver.id === currentId
+          ));
       } else {
         return false;
       }
@@ -120,8 +123,6 @@ export default {
 
     createPassenger(item) {
       const currentAccount = this.$store.state.currentAccount;
-      console.log(currentAccount.id);
-      console.log(item.id);
       let capacity = item.capacity.split("/");
       let currPassengers = Math.floor(capacity[0]);
       let maxPassengers = Math.floor(capacity[1]);
@@ -131,11 +132,16 @@ export default {
             passengerId: currentAccount.id,
             rideId: item.id,
           })
-          .then(() => {
-            console.log("Success!");
-            item.capacity = currPassengers + 1 + "/" + maxPassengers;
-            // Update the users's status on this ride, which should reactively update the UI.
-            this.$set(item, "currentUserIsPassenger", true);
+          .then((result) => {
+            if(result.data.ok == true){
+              console.log("Success!");
+              item.capacity = currPassengers + 1 + "/" + maxPassengers;
+              // Update the users's status on this ride, which should reactively update the UI.
+              this.$set(item, "currentUserIsPassenger", true);
+            }
+            else {
+              console.log("Failed to create passenger");
+            }
           })
           .catch((err) => console.log(err));
       } else {
