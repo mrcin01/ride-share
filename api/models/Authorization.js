@@ -10,7 +10,7 @@ class Authorization extends Model {
       const Vehicle = require('./Vehicle.js');
         return {
             driver: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: Driver,
                 join: {
                     from: "Driver.id",
@@ -18,7 +18,7 @@ class Authorization extends Model {
                 }
             },
             vehicle: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: Driver,
                 join: {
                     from: "Vehicle.id",

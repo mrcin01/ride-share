@@ -10,9 +10,10 @@ class Ride extends Model {
     const Location = require("./Location.js");
     const Vehicle = require("./Vehicle.js");
     const Passenger = require("./Passenger.js");
+    const Driver = require("./Driver.js");
 
     return {
-      driver: {
+      drivers: {
         relation: Model.HasManyRelation,
         modelClass: Drivers,
         join: {
@@ -51,6 +52,19 @@ class Ride extends Model {
           from: "Ride.toLocationId",
           to: "Location.id",
         },
+      },
+      driver: {
+        relation: Model.HasManyRelation,
+        modelClass: Driver,
+        join: {
+          from: "Ride.id",
+          through: {
+            // drivers is the join table.
+            from: 'drivers.rideId',
+            to: 'drivers.driverId'
+          },
+          to: "Driver.id",
+        }
       },
     };
   }
