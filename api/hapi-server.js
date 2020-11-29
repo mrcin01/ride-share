@@ -150,6 +150,7 @@ async function init() {
               firstName: user.first_name,
               lastName: user.last_name,
               email: user.email,
+              isAdmin: user.isAdmin,
             },
           };
         } else {
