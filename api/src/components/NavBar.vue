@@ -14,6 +14,7 @@
     <v-btn v-if="!isLoggedIn" text v-bind:to="{ name: 'sign-in' }">
       Sign In
     </v-btn>
+    <v-btn v-if="isAdmin" text v-bind:to="{ name: 'createRide' }">Create Ride</v-btn>
     <v-btn v-if="isLoggedIn" text v-bind:to="{ name: 'driver' }">New Driver?</v-btn>
     <v-btn v-if="isLoggedIn" text v-bind:to="{ name: 'rides' }">Rides</v-btn>
     <!-- 

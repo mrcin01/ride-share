@@ -13,6 +13,7 @@ const RideHelper = require("./helpers/RideHelper");
 // Hapi
 const Joi = require("@hapi/joi"); // Input validation
 const Hapi = require("@hapi/hapi"); // Server
+const Vehicle = require("./models/Vehicle.js");
 
 const server = Hapi.server({
   host: "localhost",
@@ -383,6 +384,108 @@ async function init() {
           return {
             ok: false,
             msge: `Couldn't create Driver from user id '${request.payload.userId}'`,
+          };
+        }
+      },
+    },
+
+    {
+      method: "POST",
+      path: "/createRide",
+      config: {
+        description: "Creates a New Ride",
+        validate: {
+          payload: Joi.object({
+            date: Joi.date().required(),
+            time: Joi.string().required(),
+            distance: Joi.required(),
+            fuelPrice: Joi.required(),
+            fee: Joi.required(),
+            vehicleModel: Joi.string().required(),
+            fromLocationName: Joi.string().required(),
+            toLocationName: Joi.string().required(),
+          }),
+        },
+      },
+      handler: async (request) => {
+
+        const vehicle = await Vehicle.query()
+          .where("model", request.payload.vehicleModel)
+          .first();
+        if (vehicle){
+          const currentVehicleId = vehicle.id;
+        }
+        else {
+          return {
+            ok: false,
+            msge: `Vehicle Model: '${request.payload.vehicleModel}' does not exist`,
+          };
+        }
+
+        const fromLocation = await Location.query()
+          .where("name", request.payload.fromLocationName)
+          .first();
+        if (fromLocation){
+          const currentFromLocationId = fromLocation.id;
+        }
+        else {
+          return {
+            ok: false,
+            msge: `Location: '${request.payload.fromLocationName}' does not exist`,
+          };
+        }
+        
+        const toLocation = await Location.query()
+          .where("name", request.payload.fromLocationName)
+          .first();
+        if (toLocation){
+          const currentToLocationId = toLocation.id;
+        }
+        else {
+          return {
+            ok: false,
+            msge: `Location: '${request.payload.toLocationName}' does not exist`,
+          };
+        }
+        
+        const existingRide = await Ride.query()
+          .where("date", request.payload.date)
+          .andWhere("time", request.payload.time)
+          .andWhere("distance", request.payload.distance)
+          .andWhere("fuelPrice", request.payload.fuelPrice)
+          .andWhere("fee", request.payload.fee)
+          .andWhere("vehicleId", currentVehicleId)
+          .andWhere("fromLocationId", currentFromLocationId)
+          .andWhere("toLocationId", currentToLocationId)
+          .first();
+        if (existingRide) {
+          console.log(`Ride Already Exists`);
+          return {
+            ok: false,
+            msge: `Ride Already Exists`,
+          };
+        }
+
+        const newRide = await Driver.query().insert({
+          date: request.payload.date,
+          time: request.payload.time,
+          distance: request.payload.distance,
+          fuelPrice: request.payload.fuelPrice,
+          fee: request.payload.fee,
+          vehicleId: currentVehicleId,
+          fromLocationId: currentFromLocationId,
+          toLocationId: currentToLocationId,
+        });
+
+        if (newRide) {
+          return {
+            ok: true,
+            msge: `Created new Ride`,
+          };
+        } else {
+          return {
+            ok: false,
+            msge: `Couldn't create Ride`,
           };
         }
       },

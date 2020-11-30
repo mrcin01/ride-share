@@ -10,7 +10,7 @@ class Location extends Model {
       const Ride = require('./Ride.js');
         return {
             location: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: Ride,
                 join: {
                     from: "Location.id",

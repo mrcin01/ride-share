@@ -8,6 +8,7 @@ import About from "./pages/About.vue";
 import Accounts from "./pages/Accounts.vue";
 import Rides from "./pages/Rides.vue";
 import Driver from "./pages/Driver.vue";
+import createRide from "./pages/CreateRide.vue";
 
 Vue.use(Router);
 
@@ -22,5 +23,6 @@ export default new Router({
     { name: "accounts", path: "/accounts", component: Accounts },
     { name: "rides", path: "/rides", component: Rides },
     { name: "driver", path: "/driver", component: Driver},
+    { name: "createRide", path: "/createRide", component: createRide},
   ]
 });
