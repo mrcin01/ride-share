@@ -174,7 +174,7 @@ async function init() {
           .withGraphFetched("fromLocation")
           .withGraphFetched("toLocation")
           .withGraphFetched("passenger")
-          .withGraphFetched("drivers"),
+          .withGraphFetched("drivers")
     },
 
     {

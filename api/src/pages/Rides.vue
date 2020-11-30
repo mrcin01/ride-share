@@ -3,13 +3,15 @@
     <div>
       <h4 class="display-1">Rides</h4>
 
+      <v-text-field v-model="search" label="Search"></v-text-field>
       <v-data-table
         class="elevation-1"
         v-bind:headers="headers"
         v-bind:items="rides"
+        v-bind:search="search"
       >
         <template v-slot:item="{ item }">
-          <tr v-bind:class="itemClass(item)">
+          <tr v-bind:class="itemClass(item)" @click="goToRide(item)">
             <td>{{ item.date }}</td>
             <td>{{ item.time }}</td>
             <td>{{ item.distance }}</td>
@@ -45,6 +47,8 @@ export default {
 
   data: function() {
     return {
+      search: "",
+
       headers: [
         { text: "Date", value: "date" },
         { text: "Time", value: "time" },
@@ -150,6 +154,12 @@ export default {
         return;
       }
     },
+
+    goToRide(item){
+      let x = item; // temporary
+      console.log(x); // also temporary
+      this.$router.push({ name: "rideId" });
+    }
   },
 };
 </script>
