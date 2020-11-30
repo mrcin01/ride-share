@@ -27,6 +27,12 @@
                 Join
               </v-btn>
             </td>
+            <td>
+              <v-btn v-if="item.currentUserIsPassenger" color="red" text @click="deletePassenger(item)">
+                Leave Ride
+              </v-btn>
+              <span v-else>NOT ON RIDE</span>
+            </td>
           </tr>
         </template>
       </v-data-table>
@@ -154,6 +160,29 @@ export default {
         return;
       }
     },
+
+    deletePassenger(item) {
+      const currentAccount = this.$store.state.currentAccount;
+      let capacity = item.capacity.split("/");
+      let currPassengers = Math.floor(capacity[0]);
+      let maxPassengers = Math.floor(capacity[1]);
+      this.$axios
+        .delete("/passenger", {
+          passengerId: currentAccount.id,
+          rideId: item.id,
+        })
+        .then((result) => {
+          if (result.data.ok == true){
+            console.log("Success in deltion!");
+            item.capacity = currPassengers - 1 + "/" + maxPassengers;
+            this.$set(item, "currentUserIsPassenger", false);
+          }
+          else {
+            console.log("Failed to delete passenger");
+          }
+        })
+        .catch((err) => console.log(err));
+    }
   },
 };
 </script>

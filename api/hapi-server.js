@@ -295,6 +295,85 @@ async function init() {
     }, // End of route config
 
     {
+      method: "DELETE",
+      path: "/passenger",
+      config: {
+        description: "Joining a ride by creating a passenger",
+        validate: {
+          payload: Joi.object({
+            passengerId: Joi.required(),
+            rideId: Joi.required(),
+          }),
+        },
+      },
+      handler: async (request) => {
+        // Fetch the user's driver record, if any.
+        const existingDriver = await Driver.query()
+          .where("userId", request.payload.passengerId)
+          .first();
+        console.log("EXISTING DRIVER", existingDriver);
+        const currentDriverId = existingDriver.id;
+        console.log("DRIVER:", currentDriverId);
+
+        // Retrieve details of the ride.
+        const currentRide = await Ride.query()
+          .withGraphFetched("vehicle")
+          .where("id", request.payload.rideId)
+          .first();
+        console.log("CURRENT RIDE", currentRide);
+        const currentVehicleId = currentRide.vehicle[0].id;
+        console.log("CURRENT VEHICLE:", currentVehicleId);
+
+        // Get authorization for this driver to drive this vehicle (if any).
+        const authorized = await Authorization.query()
+          .where("driverId", currentDriverId)
+          .andWhere("vehicleId", currentVehicleId)
+          .first();
+        console.log("AUTHORIZED:", authorized);
+
+        if (existingDriver && authorized) {
+          const deletedDriver = await Drivers.query().delete({
+            driverId: currentDriverId,
+            rideId: request.payload.rideId,
+          });
+          console.log("DELETED DRIVERS", deletedDriver);
+
+          if (deletedDriver) {
+            return {
+              ok: true,
+              msge: `Deleted drivers '${deletedDriver}'`,
+            };
+          } else {
+            return {
+              ok: false,
+              msge: `Couldn't delete drivers with id '${deletedDriver}'`,
+            };
+          }
+        } else {
+          console.log("NOT AUTHORIZED");
+          const deletePassenger = await Passenger.query().delete({
+            passengerId: request.payload.passengerId,
+            rideId: request.payload.rideId,
+          });
+
+          if (deletePassenger) {
+            console.log("DELETED PASSENGER", deletePassenger);
+            return {
+              ok: true,
+              msge: `DELETED PASSENGER '${deletePassenger}'`,
+            };
+          } else {
+            return {
+              ok: false,
+              msge: `Couldn't delete passenger with id '${deletePassenger}'`,
+            };
+          }
+        }
+        console.error("SHOULDN'T GET HERE");
+      }, // End of handler
+    }, // End of route config
+
+    {
       method: "POST",
       path: "/driver",
       config: {

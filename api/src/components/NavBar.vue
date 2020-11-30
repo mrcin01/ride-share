@@ -54,7 +54,7 @@ export default {
     },
 
     isAdmin() {
-      return this.$store.getters.isLoggedIn;
+      return this.$store.getters.isAdmin;
     }
   },
 
