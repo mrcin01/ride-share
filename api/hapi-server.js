@@ -304,7 +304,7 @@ async function init() {
         console.log("AUTHORIZED:", authorized);
 
         if (existingDriver && authorized) {
-          const deletedDriver = await Drivers.query().delete();
+          const deletedDriver = await Drivers.query().delete().where("driverId", currentDriverId).andWhere("rideId", request.payload.rideId);
           console.log("DELETED DRIVERS", deletedDriver);
 
           if (deletedDriver) {
@@ -320,7 +320,7 @@ async function init() {
           }
         } else {
           console.log("NOT AUTHORIZED");
-          const deletePassenger = await Passenger.query().delete();
+          const deletePassenger = await Passenger.query().delete().where("passengerId", request.payload.passengerId).andWhere("rideId", request.payload.rideId);
 
           if (deletePassenger) {
             console.log("DELETED PASSENGER", deletePassenger);
