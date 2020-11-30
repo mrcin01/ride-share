@@ -22,7 +22,12 @@
             <td>{{ item.fromLocation }}</td>
             <td>{{ item.toLocation }}</td>
             <td>
-              <v-btn v-if="item.currentUserIsPassenger" color="red" text @click="deletePassenger(item)">
+              <v-btn
+                v-if="item.currentUserIsPassenger"
+                color="red"
+                text
+                @click="deletePassenger(item)"
+              >
                 Leave Ride
               </v-btn>
               <v-btn v-else color="blue" text @click="createPassenger(item)">
@@ -164,21 +169,22 @@ export default {
       let maxPassengers = Math.floor(capacity[1]);
       this.$axios
         .delete("/passenger", {
-          passengerId: currentAccount.id,
-          rideId: item.id,
+          data: {
+            passengerId: currentAccount.id,
+            rideId: item.id,
+          },
         })
         .then((result) => {
-          if (result.data.ok == true){
+          if (result.data.ok == true) {
             console.log("Success in deltion!");
             item.capacity = currPassengers - 1 + "/" + maxPassengers;
             this.$set(item, "currentUserIsPassenger", false);
-          }
-          else {
+          } else {
             console.log("Failed to delete passenger");
           }
         })
         .catch((err) => console.log(err));
-    }
+    },
   },
 };
 </script>

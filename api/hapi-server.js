@@ -174,7 +174,7 @@ async function init() {
           .withGraphFetched("fromLocation")
           .withGraphFetched("toLocation")
           .withGraphFetched("passenger")
-          .withGraphFetched("drivers")
+          .withGraphFetched("drivers"),
     },
 
     {
@@ -191,11 +191,11 @@ async function init() {
       },
       handler: async (request) => {
         // Check whether this user is already a passenger.
-        const existingPassenger = await Passenger.query()
+        const currentPassenger = await Passenger.query()
           .where("passengerId", request.payload.passengerId)
           .andWhere("rideId", request.payload.rideId)
           .first();
-        if (existingPassenger) {
+        if (currentPassenger) {
           const msge = `Passenger already signed up for this ride '${request.payload.passengerId}' is already in use`;
           console.log(msge);
           return {
@@ -203,14 +203,6 @@ async function init() {
             msge: msge,
           };
         }
-
-        // Fetch the user's driver record, if any.
-        const existingDriver = await Driver.query()
-          .where("userId", request.payload.passengerId)
-          .first();
-        console.log("EXISTING DRIVER", existingDriver);
-        const currentDriverId = existingDriver.id;
-        console.log("DRIVER:", currentDriverId);
 
         // Retrieve details of the ride.
         const currentRide = await Ride.query()
@@ -221,35 +213,43 @@ async function init() {
         const currentVehicleId = currentRide.vehicle[0].id;
         console.log("CURRENT VEHICLE:", currentVehicleId);
 
-        // Get authorization for this driver to drive this vehicle (if any).
-        const authorized = await Authorization.query()
-          .where("driverId", currentDriverId)
-          .andWhere("vehicleId", currentVehicleId)
+        // Fetch the user's driver record, if any.
+        const existingDriver = await Driver.query()
+          .where("userId", request.payload.passengerId)
           .first();
-        console.log("AUTHORIZED:", authorized);
+        console.log("EXISTING DRIVER", existingDriver);
 
-        if (existingDriver && authorized) {
-          // This user is a driver and authorized to drive this vehicle.
+        if (existingDriver) {
+          const currentDriverId = existingDriver.id;
+          console.log("DRIVER:", currentDriverId);
 
-          // See whether this driver is already signed up to drive this ride.
-          const existingDrivers = await Drivers.query()
+          // Get authorization for this driver to drive this vehicle (if any).
+          const authorized = await Authorization.query()
             .where("driverId", currentDriverId)
-            .andWhere("rideId", request.payload.rideId)
+            .andWhere("vehicleId", currentVehicleId)
             .first();
-          console.log("EXISTING DRIVERS:", existingDrivers);
+          console.log("AUTHORIZED:", authorized);
 
-          // The user is already driving this ride.
-          if (existingDrivers) {
-            const msge = `Driver already signed up for this ride '${currentDriverId}' is already in use`;
-            console.log(msge);
-            return {
-              ok: false,
-              msge: msge,
-            };
-          }
-
-          // The user is authorized to drive the vehicle for this ride.
           if (authorized) {
+            // This user is a driver and authorized to drive this vehicle.
+
+            // See whether this driver is already signed up to drive this ride.
+            const existingDrivers = await Drivers.query()
+              .where("driverId", currentDriverId)
+              .andWhere("rideId", request.payload.rideId)
+              .first();
+            console.log("EXISTING DRIVERS:", existingDrivers);
+
+            // The user is already driving this ride.
+            if (existingDrivers) {
+              const msge = `Driver already signed up for this ride '${currentDriverId}' is already in use`;
+              console.log(msge);
+              return {
+                ok: false,
+                msge: msge,
+              };
+            }
+
             // Add user as driver.
             const newDrivers = await Drivers.query().insert({
               driverId: currentDriverId,
@@ -270,8 +270,9 @@ async function init() {
             }
           }
         } else {
-          // The user is not a driver. Sign up as a passenger.
-          console.log("NOT AUTHORIZED");
+          // The user is not a driver or not authorized to drive this ride.
+          // Sign up as a passenger.
+          console.log("NOT A DRIVER");
           const newPassenger = await Passenger.query().insert({
             passengerId: request.payload.passengerId,
             rideId: request.payload.rideId,

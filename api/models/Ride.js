@@ -6,21 +6,12 @@ class Ride extends Model {
   }
 
   static get relationMappings() {
-    const Drivers = require("./Drivers.js");
     const Location = require("./Location.js");
     const Vehicle = require("./Vehicle.js");
     const Passenger = require("./Passenger.js");
     const Driver = require("./Driver.js");
 
     return {
-      // drivers: {
-      //   relation: Model.HasManyRelation,
-      //   modelClass: Drivers,
-      //   join: {
-      //     from: "Ride.id",
-      //     to: "Drivers.rideId",
-      //   },
-      // },
       passenger: {
         relation: Model.HasManyRelation,
         modelClass: Passenger,
