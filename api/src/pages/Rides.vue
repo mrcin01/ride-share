@@ -22,16 +22,12 @@
             <td>{{ item.fromLocation }}</td>
             <td>{{ item.toLocation }}</td>
             <td>
-              <span v-if="item.currentUserIsPassenger">ON RIDE</span>
-              <v-btn v-else color="blue" text @click="createPassenger(item)">
-                Join
-              </v-btn>
-            </td>
-            <td>
               <v-btn v-if="item.currentUserIsPassenger" color="red" text @click="deletePassenger(item)">
                 Leave Ride
               </v-btn>
-              <span v-else>NOT ON RIDE</span>
+              <v-btn v-else color="blue" text @click="createPassenger(item)">
+                Join
+              </v-btn>
             </td>
           </tr>
         </template>
@@ -65,7 +61,7 @@ export default {
         { text: "Capacity", value: "capacity" },
         { text: "From Location", value: "fromLocation" },
         { text: "To Location", value: "toLocation" },
-        { text: "Join Ride", value: "passenger" },
+        { text: "Join/Leave Ride", value: "passenger" },
       ],
       rides: [],
 
