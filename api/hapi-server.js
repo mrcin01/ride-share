@@ -396,18 +396,19 @@ async function init() {
         description: "Creates a New Ride",
         validate: {
           payload: Joi.object({
-            date: Joi.date().required(),
+            date: Joi.string().required(),
             time: Joi.string().required(),
-            distance: Joi.required(),
-            fuelPrice: Joi.required(),
-            fee: Joi.required(),
+            distance: Joi.number().required(),
+            fuelPrice: Joi.number().required(),
+            fee: Joi.number().required(),
             vehicleModel: Joi.string().required(),
-            fromLocationName: Joi.string().required(),
-            toLocationName: Joi.string().required(),
+            fromLocation: Joi.string().required(),
+            toLocation: Joi.string().required(),
           }),
         },
       },
       handler: async (request) => {
+        console.log("PAYLOAD", request.payload);
 
         const vehicle = await Vehicle.query()
           .where("model", request.payload.vehicleModel)
