@@ -8,6 +8,8 @@ const Passenger = require("./models/Passenger.js");
 const Authorization = require("./models/Authorization.js");
 const Drivers = require("./models/Drivers.js");
 
+const RideHelper = require("./helpers/RideHelper");
+
 // Hapi
 const Joi = require("@hapi/joi"); // Input validation
 const Hapi = require("@hapi/hapi"); // Server
@@ -190,13 +192,14 @@ async function init() {
         },
       },
       handler: async (request) => {
+        const helper = new RideHelper(
+          request.payload.passengerId,
+          request.payload.rideId
+        );
+
         // Check whether this user is already a passenger.
-        const currentPassenger = await Passenger.query()
-          .where("passengerId", request.payload.passengerId)
-          .andWhere("rideId", request.payload.rideId)
-          .first();
-        if (currentPassenger) {
-          const msge = `Passenger already signed up for this ride '${request.payload.passengerId}' is already in use`;
+        if (await helper.isPassenger()) {
+          const msge = `Passenger already signed up for ride '${request.payload.passengerId}'`;
           console.log(msge);
           return {
             ok: false,
@@ -204,94 +207,62 @@ async function init() {
           };
         }
 
-        // Retrieve details of the ride.
-        const currentRide = await Ride.query()
-          .withGraphFetched("vehicle")
-          .where("id", request.payload.rideId)
-          .first();
-        console.log("CURRENT RIDE", currentRide);
-        const currentVehicleId = currentRide.vehicle[0].id;
-        console.log("CURRENT VEHICLE:", currentVehicleId);
+        // Check whether this driver is already signed up to drive this ride.
+        if (await helper.isDrivingThisRide()) {
+          const msge = `User '${await helper.getDriver().id}' already driving`;
+          console.log(msge);
+          return {
+            ok: false,
+            msge: msge,
+          };
+        }
 
-        // Fetch the user's driver record, if any.
-        const existingDriver = await Driver.query()
-          .where("userId", request.payload.passengerId)
-          .first();
-        console.log("EXISTING DRIVER", existingDriver);
-
-        if (existingDriver) {
-          const currentDriverId = existingDriver.id;
-          console.log("DRIVER:", currentDriverId);
-
-          // Get authorization for this driver to drive this vehicle (if any).
-          const authorized = await Authorization.query()
-            .where("driverId", currentDriverId)
-            .andWhere("vehicleId", currentVehicleId)
-            .first();
-          console.log("AUTHORIZED:", authorized);
-
-          if (authorized) {
-            // This user is a driver and authorized to drive this vehicle.
-
-            // See whether this driver is already signed up to drive this ride.
-            const existingDrivers = await Drivers.query()
-              .where("driverId", currentDriverId)
-              .andWhere("rideId", request.payload.rideId)
-              .first();
-            console.log("EXISTING DRIVERS:", existingDrivers);
-
-            // The user is already driving this ride.
-            if (existingDrivers) {
-              const msge = `Driver already signed up for this ride '${currentDriverId}' is already in use`;
-              console.log(msge);
-              return {
-                ok: false,
-                msge: msge,
-              };
-            }
-
-            // Add user as driver.
-            const newDrivers = await Drivers.query().insert({
-              driverId: currentDriverId,
-              rideId: request.payload.rideId,
-            });
-            console.log("NEW DRIVERS", newDrivers);
-
-            if (newDrivers) {
-              return {
-                ok: true,
-                msge: `Created drivers '${currentDriverId}'`,
-              };
-            } else {
-              return {
-                ok: false,
-                msge: `Couldn't create drivers with id '${currentDriverId}'`,
-              };
-            }
-          }
-        } else {
-          // The user is not a driver or not authorized to drive this ride.
-          // Sign up as a passenger.
-          console.log("NOT A DRIVER");
-          const newPassenger = await Passenger.query().insert({
-            passengerId: request.payload.passengerId,
+        if (
+          (await helper.isDriver()) &&
+          (await helper.isAuthorizedForVehicle())
+        ) {
+          // This user is a driver and authorized to drive this vehicle.
+          // Add user as driver.
+          console.log("ADD DRIVER");
+          const driver = await helper.getDriver();
+          const newDrivers = await Drivers.query().insert({
+            driverId: driver.id,
             rideId: request.payload.rideId,
           });
+          console.log("NEW DRIVERS", newDrivers);
 
-          if (newPassenger) {
-            console.log("NEW PASSENGER", newPassenger);
+          if (newDrivers) {
             return {
               ok: true,
-              msge: `Created passenger '${request.payload.passengerId}'`,
+              msge: `Created drivers '${driver.id}'`,
             };
           } else {
             return {
               ok: false,
-              msge: `Couldn't create passenger with id '${request.payload.passengerId}'`,
+              msge: `Couldn't create drivers with id '${driver.id}'`,
             };
           }
         }
-        console.error("SHOULDN'T GET HERE");
+
+        // Sign up as a passenger.
+        const newPassenger = await Passenger.query().insert({
+          passengerId: request.payload.passengerId,
+          rideId: request.payload.rideId,
+        });
+
+        if (newPassenger) {
+          console.log("NEW PASSENGER", newPassenger);
+          return {
+            ok: true,
+            msge: `Created passenger '${request.payload.passengerId}'`,
+          };
+        } else {
+          console.error("COULDN'T CREATE NEW PASSENGER");
+          return {
+            ok: false,
+            msge: `Couldn't create passenger with id '${request.payload.passengerId}'`,
+          };
+        }
       }, // End of handler
     }, // End of route config
 
