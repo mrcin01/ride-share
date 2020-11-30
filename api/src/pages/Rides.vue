@@ -11,7 +11,7 @@
         v-bind:search="search"
       >
         <template v-slot:item="{ item }">
-          <tr v-bind:class="itemClass(item)" @click="goToRide(item)">
+          <tr v-bind:class="itemClass(item)">
             <td>{{ item.date }}</td>
             <td>{{ item.time }}</td>
             <td>{{ item.distance }}</td>
@@ -154,12 +154,6 @@ export default {
         return;
       }
     },
-
-    goToRide(item){
-      let x = item; // temporary
-      console.log(x); // also temporary
-      this.$router.push({ name: "rideId" });
-    }
   },
 };
 </script>
