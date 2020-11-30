@@ -270,7 +270,7 @@ async function init() {
       method: "DELETE",
       path: "/passenger",
       config: {
-        description: "Joining a ride by creating a passenger",
+        description: "Leaving a ride by deleting a passenger",
         validate: {
           payload: Joi.object({
             passengerId: Joi.required(),
@@ -304,10 +304,7 @@ async function init() {
         console.log("AUTHORIZED:", authorized);
 
         if (existingDriver && authorized) {
-          const deletedDriver = await Drivers.query().delete({
-            driverId: currentDriverId,
-            rideId: request.payload.rideId,
-          });
+          const deletedDriver = await Drivers.query().delete();
           console.log("DELETED DRIVERS", deletedDriver);
 
           if (deletedDriver) {
@@ -323,10 +320,7 @@ async function init() {
           }
         } else {
           console.log("NOT AUTHORIZED");
-          const deletePassenger = await Passenger.query().delete({
-            passengerId: request.payload.passengerId,
-            rideId: request.payload.rideId,
-          });
+          const deletePassenger = await Passenger.query().delete();
 
           if (deletePassenger) {
             console.log("DELETED PASSENGER", deletePassenger);
@@ -341,6 +335,7 @@ async function init() {
             };
           }
         }
+        // eslint-disable-next-line no-unreachable
         console.error("SHOULDN'T GET HERE");
       }, // End of handler
     }, // End of route config
