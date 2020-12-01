@@ -9,7 +9,7 @@ class Vehicle_Type extends Model {
         const Vehicle = require('./Vehicle.js');
         return {
             Vehicle: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: Vehicle,
                 join: {
                     from: "Vehicle-Type.id",

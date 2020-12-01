@@ -8,8 +8,7 @@
     </v-content>
     <v-footer class="pa-3">
       <v-layout justify-center class="font-weight-thin">
-        &copy; {{ new Date().getFullYear() }} Wry and Feckless Morale Boosters,
-        LLC&mdash;A Firegraph Company
+        &copy; {{ new Date().getFullYear() }} Matthew Bouch and Brickson Cain
       </v-layout>
     </v-footer>
   </v-app>

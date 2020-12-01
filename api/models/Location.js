@@ -20,6 +20,14 @@ class Location extends Model {
                     from: "Location.id",
                     to: "Ride.fromLocationId"
                 }
+            },
+            State: {
+                relation: Model.HasManyRelation,
+                modelClass: State,
+                join: {
+                    from: "Location.state",
+                    to: "State.abbreviation"
+                }
             }
         };
     }

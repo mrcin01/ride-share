@@ -82,7 +82,7 @@ export default {
       this.rides = response.data.map((ride) => {
         const rtn = {
           id: ride.id,
-          date: ride.date,
+          date: ride.date.split("T")[0],
           time: ride.time,
           distance: ride.distance,
           fuelPrice: ride.fuelPrice,

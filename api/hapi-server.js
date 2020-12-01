@@ -7,6 +7,9 @@ const Driver = require("./models/Driver.js");
 const Passenger = require("./models/Passenger.js");
 const Authorization = require("./models/Authorization.js");
 const Drivers = require("./models/Drivers.js");
+const Location = require("./models/Location.js");
+const Vehicle_Type = require("./models/Vehicle-Type.js");
+const State = require("./models/State.js");
 
 const RideHelper = require("./helpers/RideHelper");
 
@@ -285,26 +288,27 @@ async function init() {
           .where("userId", request.payload.passengerId)
           .first();
         console.log("EXISTING DRIVER", existingDriver);
-        const currentDriverId = existingDriver.id;
-        console.log("DRIVER:", currentDriverId);
+        if (existingDriver){
+          const currentDriverId = existingDriver.id;
+          console.log("DRIVER:", currentDriverId);
 
-        // Retrieve details of the ride.
-        const currentRide = await Ride.query()
-          .withGraphFetched("vehicle")
-          .where("id", request.payload.rideId)
-          .first();
-        console.log("CURRENT RIDE", currentRide);
-        const currentVehicleId = currentRide.vehicle[0].id;
-        console.log("CURRENT VEHICLE:", currentVehicleId);
+          // Retrieve details of the ride.
+          const currentRide = await Ride.query()
+            .withGraphFetched("vehicle")
+            .where("id", request.payload.rideId)
+            .first();
+          console.log("CURRENT RIDE", currentRide);
+          const currentVehicleId = currentRide.vehicle[0].id;
+          console.log("CURRENT VEHICLE:", currentVehicleId);
+          
+          // Get authorization for this driver to drive this vehicle (if any).
+          const authorized = await Authorization.query()
+            .where("driverId", currentDriverId)
+            .andWhere("vehicleId", currentVehicleId)
+            .first();
+          console.log("AUTHORIZED:", authorized);
 
-        // Get authorization for this driver to drive this vehicle (if any).
-        const authorized = await Authorization.query()
-          .where("driverId", currentDriverId)
-          .andWhere("vehicleId", currentVehicleId)
-          .first();
-        console.log("AUTHORIZED:", authorized);
-
-        if (existingDriver && authorized) {
+        if (authorized) {
           const deletedDriver = await Drivers.query().delete().where("driverId", currentDriverId).andWhere("rideId", request.payload.rideId);
           console.log("DELETED DRIVERS", deletedDriver);
 
@@ -319,22 +323,23 @@ async function init() {
               msge: `Couldn't delete drivers with id '${deletedDriver}'`,
             };
           }
-        } else {
-          console.log("NOT AUTHORIZED");
-          const deletePassenger = await Passenger.query().delete().where("passengerId", request.payload.passengerId).andWhere("rideId", request.payload.rideId);
+        }
+      } 
+      
+        console.log("NOT AUTHORIZED");
+        const deletePassenger = await Passenger.query().delete().where("passengerId", request.payload.passengerId).andWhere("rideId", request.payload.rideId);
 
-          if (deletePassenger) {
-            console.log("DELETED PASSENGER", deletePassenger);
-            return {
-              ok: true,
-              msge: `DELETED PASSENGER '${deletePassenger}'`,
-            };
-          } else {
-            return {
-              ok: false,
-              msge: `Couldn't delete passenger with id '${deletePassenger}'`,
-            };
-          }
+        if (deletePassenger) {
+          console.log("DELETED PASSENGER", deletePassenger);
+          return {
+            ok: true,
+            msge: `DELETED PASSENGER '${deletePassenger}'`,
+          };
+        } else {
+          return {
+            ok: false,
+            msge: `Couldn't delete passenger with id '${deletePassenger}'`,
+          };
         }
         // eslint-disable-next-line no-unreachable
         console.error("SHOULDN'T GET HERE");
@@ -414,7 +419,7 @@ async function init() {
           .where("model", request.payload.vehicleModel)
           .first();
         if (vehicle){
-          const currentVehicleId = vehicle.id;
+          var currentVehicleId = vehicle.id;
         }
         else {
           return {
@@ -424,28 +429,28 @@ async function init() {
         }
 
         const fromLocation = await Location.query()
-          .where("name", request.payload.fromLocationName)
+          .where("name", request.payload.fromLocation)
           .first();
         if (fromLocation){
-          const currentFromLocationId = fromLocation.id;
+          var currentFromLocationId = fromLocation.id;
         }
         else {
           return {
             ok: false,
-            msge: `Location: '${request.payload.fromLocationName}' does not exist`,
+            msge: `Location: '${request.payload.fromLocation}' does not exist`,
           };
         }
         
         const toLocation = await Location.query()
-          .where("name", request.payload.fromLocationName)
+          .where("name", request.payload.toLocation)
           .first();
         if (toLocation){
-          const currentToLocationId = toLocation.id;
+          var currentToLocationId = toLocation.id;
         }
         else {
           return {
             ok: false,
-            msge: `Location: '${request.payload.toLocationName}' does not exist`,
+            msge: `Location: '${request.payload.toLocation}' does not exist`,
           };
         }
         
@@ -467,7 +472,7 @@ async function init() {
           };
         }
 
-        const newRide = await Driver.query().insert({
+        const newRide = await Ride.query().insert({
           date: request.payload.date,
           time: request.payload.time,
           distance: request.payload.distance,
@@ -491,6 +496,186 @@ async function init() {
         }
       },
     },
+
+    {
+      method: "POST",
+      path: "/createVehicle",
+      config: {
+        description: "Creates a New Vehicle",
+        validate: {
+          payload: Joi.object({
+            make: Joi.string().required(),
+            model: Joi.string().required(),
+            color: Joi.string().required(),
+            vehicleType: Joi.string().required(),
+            capacity: Joi.number().required(),
+            mpg: Joi.number().required(),
+            licenseState: Joi.string().required(),
+            licensePlate: Joi.string().required(),
+          }),
+        },
+      },
+      handler: async (request) => {
+        console.log("PAYLOAD", request.payload);
+
+        const vehicleType = await Vehicle_Type.query()
+          .where("type", request.payload.vehicleType)
+          .first();
+        if (vehicleType){
+          var currentVehicleTypeId = vehicleType.id;
+        }
+        else {
+          return {
+            ok: false,
+            msge: `Vehicle Type: '${request.payload.vehicleType}' does not exist`,
+          };
+        }
+
+        const licenseState = await State.query()
+          .where("abbreviation", request.payload.licenseState)
+          .first();
+        if (licenseState){
+          var currentStateabbr = licenseState.abbreviation;
+        }
+        else {
+          return {
+            ok: false,
+            msge: `State: '${request.payload.licenseState}' does not exist`,
+          };
+        }
+    
+        const existingVehicle = await Vehicle.query()
+          .where("make", request.payload.make)
+          .andWhere("model", request.payload.model)
+          .andWhere("color", request.payload.color)
+          .andWhere("vehicleTypeId", currentVehicleTypeId)
+          .andWhere("capacity", request.payload.capacity)
+          .andWhere("mpg", request.payload.mpg)
+          .andWhere("licenseState", currentStateabbr)
+          .andWhere("licensePlate", request.payload.licensePlate)
+          .first();
+        if (existingVehicle) {
+          console.log(`Vehicle Already Exists`);
+          return {
+            ok: false,
+            msge: `Vehicle Already Exists`,
+          };
+        }
+
+        const newVehicle = await Vehicle.query().insert({
+          make: request.payload.make,
+          model: request.payload.model,
+          color: request.payload.color,
+          vehicleTypeId: currentVehicleTypeId,
+          capacity: request.payload.capacity,
+          mpg: request.payload.mpg,
+          licenseState: currentStateabbr,
+          licensePlate: request.payload.licensePlate,
+        });
+
+        if (newVehicle) {
+          return {
+            ok: true,
+            msge: `Created new Vehicle`,
+          };
+        } else {
+          return {
+            ok: false,
+            msge: `Couldn't create Vehicle`,
+          };
+        }
+      },
+    },
+
+    {
+      method: "GET",
+      path: "/vehicles",
+      config: {
+        description: "Retrieve all vehicles",
+      },
+      handler: () =>
+        Vehicle.query()
+          .withGraphFetched("Vehicle_Type")
+          .withGraphFetched("State"),
+    },
+
+    {
+      method: "GET",
+      path: "/locations",
+      config: {
+        description: "Retrieve all locations",
+      },
+      handler: () =>
+        Location.query()
+          .withGraphFetched("State"),
+    },
+
+    {
+      method: "POST",
+      path: "/createLocation",
+      config: {
+        description: "Creates a New Location",
+        validate: {
+          payload: Joi.object({
+            name: Joi.string().required(),
+            address: Joi.string().required(),
+            city: Joi.string().required(),
+            stateAbbr: Joi.string().required(),
+            zipCode: Joi.string().required(),
+          }),
+        },
+      },
+      handler: async (request) => {
+        console.log("PAYLOAD", request.payload);
+
+        const existingState = await State.query()
+          .where("abbreviation", request.payload.stateAbbr)
+          .first();
+        
+        if (!existingState){
+          return {
+            ok: false,
+            msge: `State Does Not Exist`,
+          };
+        }
+    
+        const existingLocation = await Location.query()
+          .where("name", request.payload.name)
+          .andWhere("address", request.payload.address)
+          .andWhere("city", request.payload.city)
+          .andWhere("state", request.payload.stateAbbr)
+          .andWhere("zipCode", request.payload.zipCode)
+          .first();
+        if (existingLocation) {
+          console.log(`Location Already Exists`);
+          return {
+            ok: false,
+            msge: `Location Already Exists`,
+          };
+        }
+
+        const newLocation = await Location.query().insert({
+          name: request.payload.name,
+          address: request.payload.address,
+          city: request.payload.city,
+          state: request.payload.stateAbbr,
+          zipCode: request.payload.zipCode,
+        });
+
+        if (newLocation) {
+          return {
+            ok: true,
+            msge: `Created new Location`,
+          };
+        } else {
+          return {
+            ok: false,
+            msge: `Couldn't create Location`,
+          };
+        }
+      },
+    },
+
   ]);
 
   // Start the server.

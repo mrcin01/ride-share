@@ -9,6 +9,10 @@ import Accounts from "./pages/Accounts.vue";
 import Rides from "./pages/Rides.vue";
 import Driver from "./pages/Driver.vue";
 import createRide from "./pages/CreateRide.vue";
+import createVehicle from "./pages/CreateVehicle.vue";
+import Vehicles from "./pages/Vehicles.vue";
+import Locations from "./pages/Locations.vue";
+import CreateLocation from "./pages/CreateLocation.vue";
 
 Vue.use(Router);
 
@@ -24,5 +28,9 @@ export default new Router({
     { name: "rides", path: "/rides", component: Rides },
     { name: "driver", path: "/driver", component: Driver},
     { name: "createRide", path: "/createRide", component: createRide},
+    { name: "createVehicle", path: "/createVehicle", component: createVehicle},
+    { name: "vehicles", path: "/vehicles", component: Vehicles },
+    { name: "locations", path: "/locations", component: Locations },
+    { name: "createLocation", path: "/createLocation", component: CreateLocation},
   ]
 });

@@ -13,7 +13,7 @@
                 id="date"
                 label="Date"
                 name="Date"
-                prepend-icon="mdi-id-card"
+                prepend-icon="mdi-calendar-month"
                 type="date"
               />
               <v-text-field
@@ -21,7 +21,7 @@
                 id="time"
                 label="Time"
                 name="time"
-                prepend-icon="mdi-earth"
+                prepend-icon="mdi-alarm"
                 type="time"
               />
               <v-text-field
@@ -29,7 +29,7 @@
                 id="distance"
                 label="Distance"
                 name="distance"
-                prepend-icon="mdi-earth"
+                prepend-icon="mdi-map-marker-radius"
                 type="number"
               />
               <v-text-field
@@ -37,7 +37,7 @@
                 id="fuelPrice"
                 label="Fuel Price"
                 name="fuelPrice"
-                prepend-icon="mdi-earth"
+                prepend-icon="mdi-gas-station"
                 type="number"
               />
               <v-text-field
@@ -45,7 +45,7 @@
                 id="fee"
                 label="Fee"
                 name="fee"
-                prepend-icon="mdi-earth"
+                prepend-icon="mdi-cash"
                 type="number"
               />
               <v-text-field
@@ -53,7 +53,7 @@
                 id="vehicleModel"
                 label="Vehicle Model"
                 name="vehicleModel"
-                prepend-icon="mdi-earth"
+                prepend-icon="mdi-car-outline"
                 type="text"
               />
               <v-text-field
@@ -61,7 +61,7 @@
                 id="fromLocation"
                 label="From Location"
                 name="fromLocation"
-                prepend-icon="mdi-earth"
+                prepend-icon="mdi-map-marker-plus"
                 type="text"
               />
               <v-text-field
@@ -69,7 +69,7 @@
                 id="toLocation"
                 label="To Location"
                 name="toLocation"
-                prepend-icon="mdi-earth"
+                prepend-icon="mdi-map-marker-circle"
                 type="text"
               />
             </v-form>
@@ -126,6 +126,14 @@ export default {
         })
         .then((result) => {
           this.showSnackbar(result.data.msge);
+          this.date = "";
+          this.time = "";
+          this.distance = "";
+          this.fuelPrice = "";
+          this.fee = "";
+          this.vehicleModel = "";
+          this.fromLocation = "";
+          this.toLocation = "";
         })
         .catch((err) => this.showSnackbar(err));
     },

@@ -67,6 +67,8 @@ export default {
         })
         .then((result) => {
           this.showSnackbar(result.data.msge);
+          this.licenseNumber = "";
+          this.licenseState = "";
         })
         .catch((err) => this.showSnackbar(err));
     },

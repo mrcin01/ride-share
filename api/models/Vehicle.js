@@ -12,7 +12,7 @@ class Vehicle extends Model {
       const State = require('./State.js');
         return {
             Authorization: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: Authorization,
                 join: {
                     from: "Vehicle.id",
@@ -20,15 +20,15 @@ class Vehicle extends Model {
                 },
             },
             Vehicle_Type: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: Vehicle_Type,
                 join: {
-                    from: "Vehicle_Type.id",
-                    to: "Vehicle.vehicleTypeId"
+                    from: "Vehicle.vehicleTypeId",
+                    to: "Vehicle-Type.id"
                 },
             },
             Ride: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: Ride,
                 join: {
                     from: "Vehicle.id",
@@ -36,11 +36,11 @@ class Vehicle extends Model {
                 },
             },
             State: {
-                relation: Model.OneToManyRelation,
+                relation: Model.HasManyRelation,
                 modelClass: State,
                 join: {
-                    from: "State.abbreviation",
-                    to: "Vehicle.licenseState"
+                    from: "Vehicle.licenseState",
+                    to: "State.abbreviation"
                 },
             },
         };
